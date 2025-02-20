@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculator Nutrițional Avansat MVP</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .logo-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .logo-container img {
+      max-width: 200px;
+      height: auto;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .form-container {
+      flex: 1;
+      min-width: 300px;
+      max-width: 600px;
+    }
+    .result-container {
+      flex: 1;
+      min-width: 250px;
+      max-width: 400px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      background-color: #f0f0f0;
+      align-self: flex-start;
+    }
+    fieldset {
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+    }
+    legend {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input, select, textarea {
+      padding: 5px;
+      margin-top: 5px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 10px 15px;
+      margin-top: 10px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <!-- Logo centrat -->
+  <div class="logo-container">
+    <img src="logo.png" alt="Logo">
+  </div>
+
+  <h1>Calculator Nutrițional Avansat</h1>
+  <div class="container">
+    <div class="form-container">
+      <form id="nutritionForm">
+        <!-- Date Personale -->
+        <fieldset>
+          <legend>Date Personale</legend>
+          <label for="age">Vârstă (ani):</label>
+          <input type="number" id="age" name="age" required>
+          
+          <label for="sex">Sex:</label>
+          <select id="sex" name="sex" required>
+            <option value="" disabled selected>Selectează sexul</option>
+            <option value="male">Masculin</option>
+            <option value="female">Feminin</option>
+            <option value="other">Altele</option>
+          </select>
+          
+          <label for="height">Înălțime (cm):</label>
+          <input type="number" id="height" name="height" required>
+          
+          <label for="weight">Greutate (kg):</label>
+          <input type="number" id="weight" name="weight" required>
+        </fieldset>
+        
+        <!-- Activitate și Obiective -->
+        <fieldset>
+          <legend>Activitate și Obiective</legend>
+          <label for="activity">Nivel de activitate:</label>
+          <select id="activity" name="activity" required>
+            <option value="" disabled selected>Selectează nivelul de activitate</option>
+            <option value="1.2">Sedentar</option>
+            <option value="1.5">Moderat</option>
+            <option value="1.7">Activ</option>
+          </select>
+          
+          <label for="objective">Obiectiv nutrițional:</label>
+          <select id="objective" name="objective" required>
+            <option value="" disabled selected>Selectează obiectivul</option>
+            <option value="maintain">Mentinere</option>
+            <option value="loss">Scădere în greutate</option>
+            <option value="gain">Creștere în masă musculară</option>
+          </select>
+          
+          <!-- Câmpul pentru greutate dorită -->
+          <label for="desiredWeight">Greutate dorită (kg):</label>
+          <input type="number" id="desiredWeight" name="desiredWeight" placeholder="Completează dacă obiectivul este scădere sau creștere">
+        </fieldset>
+        
+        <!-- Informații Suplimentare -->
+        <fieldset>
+          <legend>Informații Suplimentare</legend>
+          <label for="allergies">Alergii și intoleranțe alimentare (separate prin virgulă):</label>
+          <input type="text" id="allergies" name="allergies" placeholder="Ex: gluten, lactoză">
+          
+          <label for="additionalInfo">Informații suplimentare (opțional):</label>
+          <textarea id="additionalInfo" name="additionalInfo" rows="3" placeholder="Orice informație suplimentară..."></textarea>
+        </fieldset>
+        
+        <button type="button" onclick="calculateNutrition()">Calculează</button>
+      </form>
+    </div>
+    
+    <div class="result-container" id="result">
+      <p style="text-align: center; color: #888;">Rezultatele vor apărea aici</p>
+    </div>
+  </div>
+  
+  <script>
+    function calculateNutrition() {
+      // Preluare date obligatorii
+      var age = parseFloat(document.getElementById('age').value);
+      var sex = document.getElementById('sex').value;
+      var height = parseFloat(document.getElementById('height').value);
+      var weight = parseFloat(document.getElementById('weight').value);
+      var activity = parseFloat(document.getElementById('activity').value);
+      var objective = document.getElementById('objective').value;
+      var desiredWeightInput = document.getElementById('desiredWeight').value;
+      
+      // Validare simplă
+      if (isNaN(age) || !sex || isNaN(height) || isNaN(weight) || isNaN(activity) || !objective) {
+        alert("Te rugăm să completezi toate câmpurile obligatorii.");
+        return;
+      }
+      
+      // Pentru obiective "loss" sau "gain", greutatea dorită trebuie introdusă și validă
+      var desiredWeight = parseFloat(desiredWeightInput);
+      if (objective !== "maintain") {
+        if (isNaN(desiredWeight)) {
+          alert("Te rugăm să introduci greutatea dorită pentru obiectivul selectat.");
+          return;
+        }
+        if (objective === "loss" && desiredWeight >= weight) {
+          alert("Pentru scădere în greutate, greutatea dorită trebuie să fie mai mică decât greutatea actuală.");
+          return;
+        }
+        if (objective === "gain" && desiredWeight <= weight) {
+          alert("Pentru creștere în masă musculară, greutatea dorită trebuie să fie mai mare decât greutatea actuală.");
+          return;
+        }
+      }
+      
+      // Calcul Rata Metabolică Bazală (BMR) cu formula Mifflin-St Jeor
+      var bmr = (10 * weight) + (6.25 * height) - (5 * age);
+      if (sex === "male") {
+        bmr += 5;
+      } else {
+        bmr -= 161;
+      }
+      
+      // Calcul IMC
+      var heightM = height / 100;
+      var bmi = weight / (heightM * heightM);
+      
+      // Calcul Greutate Ideală folosind un IMC țintă de 22
+      var idealWeight = 22 * (heightM * heightM);
+      
+      // Calcul Aport Caloric Optim
+      var maintenanceCalories = bmr * activity;
+      var weightLossCalories = maintenanceCalories - 500;
+      var muscleGainCalories = maintenanceCalories + 300;
+      
+      // Calcul perioada estimată pentru atingerea greutății dorite
+      var timeEstimate = "";
+      if (objective === "loss" || objective === "gain") {
+        var weightDiff = Math.abs(weight - desiredWeight);
+        var rate; // kg pe săptămână
+        if (objective === "loss") {
+          // Presupunem o pierdere de 0.5 kg pe săptămână
+          rate = 0.5;
+        } else if (objective === "gain") {
+          // Presupunem o creștere de 0.25 kg pe săptămână
+          rate = 0.25;
+        }
+        var weeks = weightDiff / rate;
+        var months = weeks / 4;
+        timeEstimate = "Estimare de timp: aproximativ " + weeks.toFixed(1) + " săptămâni (~" + months.toFixed(1) + " luni).";
+      }
+      
+      // Generarea recomandărilor dietetice pe baza obiectivului
+      var recommendation = "";
+      switch (objective) {
+        case "maintain":
+          recommendation = "Pentru menținerea greutății, aportul caloric optim este de aproximativ " + maintenanceCalories.toFixed(0) + " kcal/zi.";
+          break;
+        case "loss":
+          recommendation = "Pentru scădere în greutate, se recomandă un aport de aproximativ " + weightLossCalories.toFixed(0) + " kcal/zi.";
+          break;
+        case "gain":
+          recommendation = "Pentru creșterea masei musculare, se recomandă un aport de aproximativ " + muscleGainCalories.toFixed(0) + " kcal/zi.";
+          break;
+        default:
+          recommendation = "";
+      }
+      
+      // Afișarea rezultatelor în containerul din dreapta
+      document.getElementById('result').innerHTML =
+        "<p><strong>Rata Metabolică Bazală (BMR):</strong> " + bmr.toFixed(0) + " kcal/zi</p>" +
+        "<p><strong>Indicele de Masă Corporală (IMC):</strong> " + bmi.toFixed(1) + "</p>" +
+        "<p><strong>Greutatea Ideală:</strong> " + idealWeight.toFixed(1) + " kg</p>" +
+        "<p>" + recommendation + "</p>" +
+        (timeEstimate ? "<p>" + timeEstimate + "</p>" : "");
+    }
+  </script>
+</body>
+</html>
