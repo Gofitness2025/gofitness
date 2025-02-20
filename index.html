@@ -195,21 +195,47 @@
       var weightLossCalories = maintenanceCalories - 500;
       var muscleGainCalories = maintenanceCalories + 300;
       
-      // Calcul perioada estimată pentru atingerea greutății dorite
+      // Calcul perioada estimată pentru atingerea greutății dorite (pentru loss sau gain)
       var timeEstimate = "";
+      var weightDiff = 0;
       if (objective === "loss" || objective === "gain") {
-        var weightDiff = Math.abs(weight - desiredWeight);
-        var rate; // kg pe săptămână
+        weightDiff = Math.abs(weight - desiredWeight);
+        // Rata de bază
+        var rate;
         if (objective === "loss") {
-          // Presupunem o pierdere de 0.5 kg pe săptămână
-          rate = 0.5;
+          rate = 0.5; // kg/saptamana pentru nivelul curent
         } else if (objective === "gain") {
-          // Presupunem o creștere de 0.25 kg pe săptămână
-          rate = 0.25;
+          rate = 0.25; // kg/saptamana pentru nivelul curent
         }
         var weeks = weightDiff / rate;
         var months = weeks / 4;
         timeEstimate = "Estimare de timp: aproximativ " + weeks.toFixed(1) + " săptămâni (~" + months.toFixed(1) + " luni).";
+      }
+      
+      // Recomandări suplimentare pentru îmbunătățirea activității
+      var improvementRecommendation = "";
+      if (objective === "loss") {
+        if (activity < 1.5) {
+          // Sugestie: dacă treci la nivel moderat (1.5), presupunem o pierdere de 0.7 kg/saptamana
+          var newRate = 0.7;
+          var newWeeks = weightDiff / newRate;
+          var newMonths = newWeeks / 4;
+          improvementRecommendation = "Sugestie: Dacă îți crești nivelul de activitate la moderat (1.5), rata de scădere ar putea fi de aproximativ 0.7 kg/săptămână, iar timpul estimat s-ar reduce la " + newWeeks.toFixed(1) + " săptămâni (~" + newMonths.toFixed(1) + " luni).";
+        } else if (activity < 1.7) {
+          // Dacă ești la nivel moderat și treci la activ, rata poate fi, să zicem, 0.8 kg/saptamana
+          var newRate = 0.8;
+          var newWeeks = weightDiff / newRate;
+          var newMonths = newWeeks / 4;
+          improvementRecommendation = "Sugestie: Dacă îți crești nivelul de activitate la activ (1.7), rata de scădere ar putea ajunge la aproximativ 0.8 kg/săptămână, reducând timpul estimat la " + newWeeks.toFixed(1) + " săptămâni (~" + newMonths.toFixed(1) + " luni).";
+        }
+      } else if (objective === "gain") {
+        if (activity < 1.7) {
+          // Sugestie: creșterea activității la 1.7 poate crește rata de creștere la 0.3 kg/săptămână
+          var newRate = 0.3;
+          var newWeeks = weightDiff / newRate;
+          var newMonths = newWeeks / 4;
+          improvementRecommendation = "Sugestie: Dacă îți crești nivelul de activitate la activ (1.7), rata de creștere ar putea fi de aproximativ 0.3 kg/săptămână, reducând timpul estimat la " + newWeeks.toFixed(1) + " săptămâni (~" + newMonths.toFixed(1) + " luni).";
+        }
       }
       
       // Generarea recomandărilor dietetice pe baza obiectivului
@@ -228,13 +254,22 @@
           recommendation = "";
       }
       
-      // Afișarea rezultatelor în containerul din dreapta
-      document.getElementById('result').innerHTML =
+      // Combinarea tuturor rezultatelor și recomandărilor
+      var output = 
         "<p><strong>Rata Metabolică Bazală (BMR):</strong> " + bmr.toFixed(0) + " kcal/zi</p>" +
         "<p><strong>Indicele de Masă Corporală (IMC):</strong> " + bmi.toFixed(1) + "</p>" +
         "<p><strong>Greutatea Ideală:</strong> " + idealWeight.toFixed(1) + " kg</p>" +
-        "<p>" + recommendation + "</p>" +
-        (timeEstimate ? "<p>" + timeEstimate + "</p>" : "");
+        "<p>" + recommendation + "</p>";
+      
+      if (timeEstimate) {
+        output += "<p>" + timeEstimate + "</p>";
+      }
+      
+      if (improvementRecommendation) {
+        output += "<p style='color: green; font-style: italic;'>" + improvementRecommendation + "</p>";
+      }
+      
+      document.getElementById('result').innerHTML = output;
     }
   </script>
 </body>
